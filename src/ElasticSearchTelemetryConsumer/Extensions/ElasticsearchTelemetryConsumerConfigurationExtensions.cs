@@ -44,3 +44,50 @@
 
 //    }
 //}
+
+using System;
+using Microsoft.Extensions.DependencyInjection;
+using Orleans.Configuration;
+using Orleans.Telemetry;
+using Orleans.TelemetryConsumers.ElasticSearch;
+
+namespace Orleans.Hosting
+{
+    public static class AITelemetryConsumerConfigurationExtensions
+    {
+        /// <summary>
+        /// Adds a metrics telemetric consumer provider of type <see cref="AITelemetryConsumer"/>.
+        /// </summary>
+        /// <param name="hostBuilder"></param>
+        /// <param name="uri">elasticsearch url</param>
+        /// <param name="indexprefix">prefix for the index names</param>
+        public static ISiloHostBuilder AddElasticsearchTelemetryConsumer(this ISiloHostBuilder hostBuilder, Uri uri, string indexprefix = "orleans-telemetry-")
+        {
+            return hostBuilder.ConfigureServices((context, services) => ConfigureServices(context, services, uri, indexprefix));
+        }
+
+        /// <summary>
+        /// Adds a metrics telemetric consumer provider of type <see cref="AITelemetryConsumer"/>.
+        /// </summary>
+        /// <param name="clientBuilder"></param>
+        /// <param name="uri">elasticsearch url</param>
+        /// <param name="indexprefix">prefix for the index names</param>
+        public static IClientBuilder AddElasticsearchTelemetryConsumer(this IClientBuilder clientBuilder, Uri uri, string indexprefix = "orleans-telemetry-")
+        {
+            return clientBuilder.ConfigureServices((context, services) => ConfigureServices(context, services, uri, indexprefix));
+        }
+
+        private static void ConfigureServices(HostBuilderContext context, IServiceCollection services, Uri uri, string indexprefix)
+        {
+            services.ConfigureFormatter<ElasticsearchTelemetryConsumerOptions>();
+            services.Configure<TelemetryOptions>(options => options.AddConsumer<ElasticsearchTelemetryConsumer>());
+
+            if (!string.IsNullOrWhiteSpace(indexprefix))
+                services.Configure<ElasticsearchTelemetryConsumerOptions>(options =>
+                {
+                    options.ElasticsearchUrl = uri;
+                    options.IndexPrefix = indexprefix;
+                });
+        }
+    }
+}

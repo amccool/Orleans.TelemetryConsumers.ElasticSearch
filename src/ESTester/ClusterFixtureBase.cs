@@ -14,7 +14,7 @@ namespace ESTester
 {
     public abstract class ClusterFixtureBase : IDisposable
     {
-        private readonly Elasticsearch _elasticsearch;
+        private readonly ElasticsearchInside.Elasticsearch _elasticsearch;
 
         static ClusterFixtureBase()
         {
@@ -24,19 +24,19 @@ namespace ESTester
 
         protected ClusterFixtureBase()
         {
-            GrainClient.Uninitialize();
+            //GrainClient.Uninitialize();
             //SerializationManager.InitializeForTesting();
 
             var testCluster = CreateTestCluster();
 
 
-            this._elasticsearch = new Elasticsearch();
+            //this._elasticsearch = new Elasticsearch();
 
 
 
-            var esTeleM = new ElasticSearchTelemetryConsumer(_elasticsearch.Url, "orleans-telemetry");
-            LogManager.TelemetryConsumers.Add(esTeleM);
-            LogManager.LogConsumers.Add(esTeleM);
+            //var esTeleM = new ElasticSearchTelemetryConsumer(_elasticsearch.Url, "orleans-telemetry");
+            //LogManager.TelemetryConsumers.Add(esTeleM);
+            //LogManager.LogConsumers.Add(esTeleM);
 
             if (testCluster.Primary == null)
             {
@@ -51,7 +51,7 @@ namespace ESTester
 
         public virtual void Dispose()
         {
-            GrainClient.Uninitialize();
+            //GrainClient.Uninitialize();
             //GrainClient.HardKill();
             foreach (var silo in HostedCluster.GetActiveSilos())
                 HostedCluster.KillSilo(silo);

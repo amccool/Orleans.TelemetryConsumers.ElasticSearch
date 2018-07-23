@@ -25,15 +25,15 @@ namespace Orleans.Telemetry
 
 
 
-	public class ElasticSearchTelemetryConsumer :
+	public class ElasticsearchTelemetryConsumer :
 		IMetricTelemetryConsumer,
 		//ITraceTelemetryConsumer, // we dont need to handle trace, its seen via System.Diagnostics.Trace, which likely will be obsoleted by orleans
 		IEventTelemetryConsumer,
 		IExceptionTelemetryConsumer,
 		IDependencyTelemetryConsumer,
 		IRequestTelemetryConsumer,
-		IFlushableLogConsumer
-	{
+	    ILogConsumer
+    {
 		private readonly Uri _elasticSearchUri;
 		private readonly string _indexPrefix;
 
@@ -42,7 +42,7 @@ namespace Orleans.Telemetry
 		private readonly string _dateFormatter;
 		private readonly object _machineName;
 
-		public ElasticSearchTelemetryConsumer(Uri elasticSearchUri, string indexPrefix, string dateFormatter = "yyyy-MM-dd-HH", int bufferWaitSeconds = 1, int bufferSize = 50)
+		public ElasticsearchTelemetryConsumer(Uri elasticSearchUri, string indexPrefix, string dateFormatter = "yyyy-MM-dd-HH", int bufferWaitSeconds = 1, int bufferSize = 50)
 		{
 			_elasticSearchUri = elasticSearchUri;
 			_indexPrefix = indexPrefix;
@@ -94,31 +94,30 @@ namespace Orleans.Telemetry
 		private string ElasticRequestTelemetryType() => "request";
 		private string ElasticLogType() => "log";
 
-		#region IFlushableLogConsumer
+        //#region IFlushableLogConsumer
 
-		public void Log(Severity severity, LoggerType loggerType, string caller, string message, IPEndPoint myIPEndPoint,
-			Exception exception, int eventCode = 0)
-		{
-			Task.Run(async () =>
-			{
-				var tm = new ExpandoObject() as IDictionary<string, Object>;
-				tm.Add("Severity", severity.ToString());
-				tm.Add("LoggerType", loggerType.ToString());
-				tm.Add("Caller", caller);
-				tm.Add("Message", message);
-				tm.Add("IPEndPoint", myIPEndPoint?.ToString());
-				tm.Add("Exception", exception?.ToString());
-				tm.Add("EventCode", eventCode);
+        public void Log(Severity severity, LoggerType loggerType, string caller, string message, IPEndPoint myIPEndPoint,
+            Exception exception, int eventCode = 0)
+        {
+            Task.Run(async () =>
+            {
+                var tm = new ExpandoObject() as IDictionary<string, Object>;
+                tm.Add("Severity", severity.ToString());
+                tm.Add("LoggerType", loggerType.ToString());
+                tm.Add("Caller", caller);
+                tm.Add("Message", message);
+                tm.Add("IPEndPoint", myIPEndPoint?.ToString());
+                tm.Add("Exception", exception?.ToString());
+                tm.Add("EventCode", eventCode);
 
-				await FinalESWrite(tm, ElasticLogType);
-			});
+                await FinalESWrite(tm, ElasticLogType);
+            });
+        }
 
-		}
+        //#endregion
 
-		#endregion
-
-		#region IExceptionTelemetryConsumer
-		public void TrackException(Exception exception, IDictionary<string, string> properties = null,
+        #region IExceptionTelemetryConsumer
+        public void TrackException(Exception exception, IDictionary<string, string> properties = null,
 			IDictionary<string, double> metrics = null)
 		{
 			Task.Run(async () =>
@@ -369,11 +368,15 @@ namespace Orleans.Telemetry
 
 		#endregion
 
-
 		public void Flush()
 		{ }
 
 		public void Close()
 		{ }
-	}
+
+        public void Log(Severity severity, LoggerType loggerType, string caller, string message, IPEndPoint myIPEndPoint, Exception exception, int eventCode = 0)
+        {
+            throw new NotImplementedException();
+        }
+    }
 }

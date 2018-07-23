@@ -93,5 +93,5 @@ namespace Orleans.TelemetryConsumers.ElasticSearch.Serializer
 		}
 
 		public IPropertyMapping CreatePropertyMapping(MemberInfo memberInfo) => null;
-	}
+    }
 }

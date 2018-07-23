@@ -38,7 +38,7 @@ namespace TestHost
 
 			var elasticSearchURL = new Uri("http://elasticsearch:9200");
 
-            var esTeleM = new ElasticSearchTelemetryConsumer(elasticSearchURL, "orleans-telemetry");
+            var esTeleM = new ElasticsearchTelemetryConsumer(elasticSearchURL, "orleans-telemetry");
             LogManager.TelemetryConsumers.Add(esTeleM);
             LogManager.LogConsumers.Add(esTeleM);
 
