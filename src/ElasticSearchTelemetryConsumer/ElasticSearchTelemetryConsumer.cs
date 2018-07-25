@@ -27,12 +27,12 @@ namespace Orleans.Telemetry
 
 	public class ElasticsearchTelemetryConsumer :
 		IMetricTelemetryConsumer,
-		//ITraceTelemetryConsumer, // we dont need to handle trace, its seen via System.Diagnostics.Trace, which likely will be obsoleted by orleans
+		ITraceTelemetryConsumer, // we dont need to handle trace, its seen via System.Diagnostics.Trace, which likely will be obsoleted by orleans
 		IEventTelemetryConsumer,
 		IExceptionTelemetryConsumer,
 		IDependencyTelemetryConsumer,
-		IRequestTelemetryConsumer,
-	    ILogConsumer
+		IRequestTelemetryConsumer //,
+	    //ILogConsumer
     {
 		private readonly Uri _elasticSearchUri;
 		private readonly string _indexPrefix;
@@ -87,7 +87,7 @@ namespace Orleans.Telemetry
 
 		private string ElasticIndex() => _indexPrefix + "-" + DateTime.UtcNow.ToString(_dateFormatter);  //DateTime.UtcNow.ToString("yyyy-MM-dd-HH");
 		private string ElasticMetricTelemetryType() => "metric";
-		//private string ElastiTraceTelemetryType() => "trace";
+		private string ElastiTraceTelemetryType() => "trace";
 		private string ElasticEventTelemetryType() => "event";
 		private string ElasticExceptionTelemetryType() => "exception";
 		private string ElasticDependencyTelemetryType() => "dependency";
@@ -96,23 +96,23 @@ namespace Orleans.Telemetry
 
         //#region IFlushableLogConsumer
 
-        public void Log(Severity severity, LoggerType loggerType, string caller, string message, IPEndPoint myIPEndPoint,
-            Exception exception, int eventCode = 0)
-        {
-            Task.Run(async () =>
-            {
-                var tm = new ExpandoObject() as IDictionary<string, Object>;
-                tm.Add("Severity", severity.ToString());
-                tm.Add("LoggerType", loggerType.ToString());
-                tm.Add("Caller", caller);
-                tm.Add("Message", message);
-                tm.Add("IPEndPoint", myIPEndPoint?.ToString());
-                tm.Add("Exception", exception?.ToString());
-                tm.Add("EventCode", eventCode);
+        //public void Log(Severity severity, LoggerType loggerType, string caller, string message, IPEndPoint myIPEndPoint,
+        //    Exception exception, int eventCode = 0)
+        //{
+        //    Task.Run(async () =>
+        //    {
+        //        var tm = new ExpandoObject() as IDictionary<string, Object>;
+        //        tm.Add("Severity", severity.ToString());
+        //        tm.Add("LoggerType", loggerType.ToString());
+        //        tm.Add("Caller", caller);
+        //        tm.Add("Message", message);
+        //        tm.Add("IPEndPoint", myIPEndPoint?.ToString());
+        //        tm.Add("Exception", exception?.ToString());
+        //        tm.Add("EventCode", eventCode);
 
-                await FinalESWrite(tm, ElasticLogType);
-            });
-        }
+        //        await FinalESWrite(tm, ElasticLogType);
+        //    });
+        //}
 
         //#endregion
 
@@ -144,59 +144,59 @@ namespace Orleans.Telemetry
 			});
 		}
 
-		#endregion
+        #endregion
 
-		//#region ITraceTelemetryConsumer
+        #region ITraceTelemetryConsumer
 
-		//public void TrackTrace(string message)
-		//{
-		//    TrackTrace(message, Severity.Info);
-		//}
+        public void TrackTrace(string message)
+        {
+            TrackTrace(message, Severity.Info);
+        }
 
-		//public void TrackTrace(string message, IDictionary<string, string> properties)
-		//{
-		//    if (properties != null)
-		//    {
-		//        TrackTrace(message, Severity.Info, properties);
-		//    }
-		//    else
-		//    {
-		//        TrackTrace(message);
-		//    }
-		//}
+        public void TrackTrace(string message, IDictionary<string, string> properties)
+        {
+            if (properties != null)
+            {
+                TrackTrace(message, Severity.Info, properties);
+            }
+            else
+            {
+                TrackTrace(message);
+            }
+        }
 
-		//public void TrackTrace(string message, Severity severity)
-		//{
-		//    TrackTrace(message, severity, null);
-		//}
+        public void TrackTrace(string message, Severity severity)
+        {
+            TrackTrace(message, severity, null);
+        }
 
-		//public void TrackTrace(string message, Severity severity, IDictionary<string, string> properties)
-		//{
-		//    WriteTrace(message, severity, properties);
-		//}
+        public void TrackTrace(string message, Severity severity, IDictionary<string, string> properties)
+        {
+            WriteTrace(message, severity, properties);
+        }
 
-		//public async Task WriteTrace(string message, Severity severity, IDictionary<string, string> properties)
-		//{
-		//    var tm = new ExpandoObject() as IDictionary<string, Object>;
-		//    tm.Add("Message", message);
-		//    tm.Add("Severity", severity.ToString());
-		//    if (properties != null)
-		//    {
-		//        foreach (var prop in properties)
-		//        {
-		//            tm.Add(prop.Key, prop.Value);
-		//        }
-		//    }
+        public async Task WriteTrace(string message, Severity severity, IDictionary<string, string> properties)
+        {
+            var tm = new ExpandoObject() as IDictionary<string, Object>;
+            tm.Add("Message", message);
+            tm.Add("Severity", severity.ToString());
+            if (properties != null)
+            {
+                foreach (var prop in properties)
+                {
+                    tm.Add(prop.Key, prop.Value);
+                }
+            }
 
-		//    await FinalESWrite(tm, ElastiTraceTelemetryType);
-		//}
+            await FinalESWrite(tm, ElastiTraceTelemetryType);
+        }
 
 
-		//#endregion
+        #endregion
 
-		#region IMetricTelemetryConsumer
+        #region IMetricTelemetryConsumer
 
-		public void DecrementMetric(string name)
+        public void DecrementMetric(string name)
 		{
 			WriteMetric(name, -1, null);
 		}
@@ -374,9 +374,9 @@ namespace Orleans.Telemetry
 		public void Close()
 		{ }
 
-        public void Log(Severity severity, LoggerType loggerType, string caller, string message, IPEndPoint myIPEndPoint, Exception exception, int eventCode = 0)
-        {
-            throw new NotImplementedException();
-        }
+        //public void Log(Severity severity, LoggerType loggerType, string caller, string message, IPEndPoint myIPEndPoint, Exception exception, int eventCode = 0)
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }

@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -12,7 +10,7 @@ using Newtonsoft.Json;
 
 namespace Orleans.TelemetryConsumers.ElasticSearch.Serializer
 {
-	public class ElasticsearchJsonNetSerializer : IElasticsearchSerializer
+    public class ElasticsearchJsonNetSerializer : IElasticsearchSerializer
 	{
 		private static readonly Encoding ExpectedEncoding = new UTF8Encoding(false);
 		/// <summary>
