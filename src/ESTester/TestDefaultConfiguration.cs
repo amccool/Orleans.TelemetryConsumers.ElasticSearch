@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Orleans.TestingHost;
+//using Orleans.TestingHost.Extensions;
 
-
-namespace ESTester
+namespace TestExtensions
 {
     public class TestDefaultConfiguration
     {
@@ -84,5 +80,4 @@ namespace ESTester
             builder.ConfigureHostConfiguration(ConfigureHostConfiguration);
         }
     }
-
 }

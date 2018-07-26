@@ -12,22 +12,24 @@ using Orleans;
 using Orleans.Runtime.Configuration;
 using Orleans.Streams;
 using Orleans.TestingHost;
+using TestExtensions;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace ESTester
 {
 
-    public class IntegrationTests : IClassFixture<IntegrationTests.Fixture>
+    public class IntegrationTests : OrleansTestingBase, IClassFixture<IntegrationTests.Fixture>
+    //: HostedTestClusterEnsureDefaultStarted
+    //: IClassFixture<IntegrationTests.Fixture>
     {
         protected const string streamProvider = "stuff";
 
-
-
-        private readonly IntegrationTests.Fixture _fixture;
+        private readonly DefaultClusterFixture _fixture;
         private readonly ITestOutputHelper _output;
 
-        public IntegrationTests(IntegrationTests.Fixture fixture, ITestOutputHelper output)
+        public IntegrationTests(DefaultClusterFixture fixture, ITestOutputHelper output) : base(fixture)
+        //(IntegrationTests.Fixture fixture, ITestOutputHelper output)
         {
             _fixture = fixture;
             _output = output;
@@ -38,8 +40,7 @@ namespace ESTester
         {
             Guid streamId = Guid.NewGuid();
 
-            IStreamProvider streamProviderBrc =
-                _fixture.HostedCluster.StreamProviderManager.GetStreamProvider(streamProvider);
+            IStreamProvider streamProviderBrc = this.Client.GetStreamProvider(streamProvider);
             IAsyncStream<object> messageStream =
                 streamProviderBrc.GetStream<object>(streamId, streamProvider);
 
@@ -65,8 +66,11 @@ namespace ESTester
 
 
 
-        public class Fixture : ClusterFixtureBase
+        public class Fixture : BaseTestClusterFixture
         {
+            override 
+
+
             protected override TestCluster CreateTestCluster()
             {
                 TimeSpan _timeout = Debugger.IsAttached ? TimeSpan.FromMinutes(5) : TimeSpan.FromSeconds(10);

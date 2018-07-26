@@ -20,6 +20,8 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="elasticsearch-inside" Version="6.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.1.1" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.1.1" />
     <PackageReference Include="Microsoft.Orleans.Runtime.Legacy" Version="2.0.4" />
     <PackageReference Include="Microsoft.Orleans.TestingHost" Version="2.0.4" />
     <PackageReference Include="xunit" Version="2.4.0" />
