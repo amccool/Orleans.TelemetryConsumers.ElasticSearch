@@ -70,12 +70,12 @@ namespace TestExtensions
         {
             builder.ConfigureBuilder(() =>
             {
-                if (builder.Properties.TryGetValue(nameof(LegacyTestClusterConfiguration), out var legacyConfigObj) &&
-                    legacyConfigObj is LegacyTestClusterConfiguration legacyConfig)
-                {
-                    legacyConfig.ClusterConfiguration.AdjustForTestEnvironment(DataConnectionString);
-                    legacyConfig.ClientConfiguration.AdjustForTestEnvironment(DataConnectionString);
-                }
+                //if (builder.Properties.TryGetValue(nameof(LegacyTestClusterConfiguration), out var legacyConfigObj) &&
+                //    legacyConfigObj is LegacyTestClusterConfiguration legacyConfig)
+                //{
+                //    legacyConfig.ClusterConfiguration.AdjustForTestEnvironment(DataConnectionString);
+                //    legacyConfig.ClientConfiguration.AdjustForTestEnvironment(DataConnectionString);
+                //}
             });
             builder.ConfigureHostConfiguration(ConfigureHostConfiguration);
         }

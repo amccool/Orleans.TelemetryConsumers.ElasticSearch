@@ -41,7 +41,7 @@ namespace TestHost
             //var elasticSearchURL = new Uri("http://elasticsearch:9200");
             var elasticSearchURL = elasticsearch.Url;
 
-            var esTeleM = new ElasticsearchTelemetryConsumer(elasticSearchURL, "orleans-telemetry");
+            //var esTeleM = new ElasticsearchTelemetryConsumer(elasticSearchURL, "orleans-telemetry");
             //LogManager.TelemetryConsumers.Add(esTeleM);
             //LogManager.LogConsumers.Add(esTeleM);
 
@@ -56,13 +56,9 @@ namespace TestHost
                 // Configure logging with any logging framework that supports Microsoft.Extensions.Logging.
                 // In this particular case it logs using the Microsoft.Extensions.Logging.Console package.
                 .ConfigureLogging(logging => logging.AddConsole())
-                ;
-
-
-            builder.AddElasticsearchTelemetryConsumer(elasticSearchURL, "orleans-telemetry");
+                .AddElasticsearchTelemetryConsumer(elasticsearch.Url, "alex-orleans");
 
             siloHost = builder.Build();
-
 
             //siloHost = new SiloHost("primary", clusterConfig);
         }

@@ -10,8 +10,10 @@ using System.Net;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using Orleans.Serialization;
+using Orleans.TelemetryConsumers.ElasticSearch;
 using Orleans.TelemetryConsumers.ElasticSearch.Serializer;
 
 namespace Orleans.Telemetry
@@ -42,13 +44,17 @@ namespace Orleans.Telemetry
 		private readonly string _dateFormatter;
 		private readonly object _machineName;
 
-		public ElasticsearchTelemetryConsumer(Uri elasticSearchUri, string indexPrefix, string dateFormatter = "yyyy-MM-dd-HH", int bufferWaitSeconds = 1, int bufferSize = 50)
+		public ElasticsearchTelemetryConsumer(IOptions<ElasticsearchTelemetryConsumerOptions> options)
 		{
-			_elasticSearchUri = elasticSearchUri;
-			_indexPrefix = indexPrefix;
-			_dateFormatter = dateFormatter;
+		    var configOptions = options.Value;
+			_elasticSearchUri = configOptions.ElasticsearchUrl;
+			_indexPrefix = configOptions.IndexPrefix;
+			
+		    _dateFormatter = configOptions.dateFormatter;
+		    int bufferWaitSeconds = configOptions.bufferWaitSeconds;
+		    int bufferSize = configOptions.bufferSize;
 
-			_machineName = Environment.MachineName;
+            _machineName = Environment.MachineName;
 
 			SetupObserverBatchy(TimeSpan.FromSeconds(bufferWaitSeconds), bufferSize);
 		}

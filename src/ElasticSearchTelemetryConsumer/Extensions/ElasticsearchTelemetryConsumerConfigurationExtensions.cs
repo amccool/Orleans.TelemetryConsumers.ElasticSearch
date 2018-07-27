@@ -53,7 +53,7 @@ using Orleans.TelemetryConsumers.ElasticSearch;
 
 namespace Orleans.Hosting
 {
-    public static class AITelemetryConsumerConfigurationExtensions
+    public static class ElasticsearchTelemetryConsumerConfigurationExtensions
     {
         /// <summary>
         /// Adds a metrics telemetric consumer provider of type <see cref="AITelemetryConsumer"/>.
@@ -61,9 +61,12 @@ namespace Orleans.Hosting
         /// <param name="hostBuilder"></param>
         /// <param name="uri">elasticsearch url</param>
         /// <param name="indexprefix">prefix for the index names</param>
-        public static ISiloHostBuilder AddElasticsearchTelemetryConsumer(this ISiloHostBuilder hostBuilder, Uri uri, string indexprefix = "orleans-telemetry-")
+        /// <param name="dateFormatter">date to string formatter for the index</param>
+        /// <param name="bufferWaitSeconds">number of second to wait before sending if the buffer is not full</param>
+        /// <param name="bufferSize">maximum number of documents to send at one time</param>
+        public static ISiloHostBuilder AddElasticsearchTelemetryConsumer(this ISiloHostBuilder hostBuilder, Uri uri, string indexprefix = "orleans-telemetry-", string dateFormatter = "yyyy-MM-dd-HH", int bufferWaitSeconds = 1, int bufferSize = 50)
         {
-            return hostBuilder.ConfigureServices((context, services) => ConfigureServices(context, services, uri, indexprefix));
+            return hostBuilder.ConfigureServices((context, services) => ConfigureServices(context, services, uri, indexprefix, dateFormatter, bufferWaitSeconds , bufferSize));
         }
 
         /// <summary>
@@ -72,12 +75,15 @@ namespace Orleans.Hosting
         /// <param name="clientBuilder"></param>
         /// <param name="uri">elasticsearch url</param>
         /// <param name="indexprefix">prefix for the index names</param>
-        public static IClientBuilder AddElasticsearchTelemetryConsumer(this IClientBuilder clientBuilder, Uri uri, string indexprefix = "orleans-telemetry-")
+        /// <param name="dateFormatter">date to string formatter for the index</param>
+        /// <param name="bufferWaitSeconds">number of second to wait before sending if the buffer is not full</param>
+        /// <param name="bufferSize">maximum number of documents to send at one time</param>
+        public static IClientBuilder AddElasticsearchTelemetryConsumer(this IClientBuilder clientBuilder, Uri uri, string indexprefix = "orleans-telemetry-", string dateFormatter = "yyyy-MM-dd-HH", int bufferWaitSeconds = 1, int bufferSize = 50)
         {
-            return clientBuilder.ConfigureServices((context, services) => ConfigureServices(context, services, uri, indexprefix));
+            return clientBuilder.ConfigureServices((context, services) => ConfigureServices(context, services, uri, indexprefix, dateFormatter, bufferWaitSeconds, bufferSize));
         }
 
-        private static void ConfigureServices(HostBuilderContext context, IServiceCollection services, Uri uri, string indexprefix)
+        private static void ConfigureServices(HostBuilderContext context, IServiceCollection services, Uri uri, string indexprefix, string dateFormatter, int bufferWaitSeconds, int bufferSize)
         {
             services.ConfigureFormatter<ElasticsearchTelemetryConsumerOptions>();
             services.Configure<TelemetryOptions>(options => options.AddConsumer<ElasticsearchTelemetryConsumer>());
@@ -87,6 +93,9 @@ namespace Orleans.Hosting
                 {
                     options.ElasticsearchUrl = uri;
                     options.IndexPrefix = indexprefix;
+                    options.dateFormatter = dateFormatter;
+                    options.bufferWaitSeconds = bufferWaitSeconds;
+                    options.bufferSize = bufferSize;
                 });
         }
     }

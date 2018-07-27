@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net461</TargetFramework>
+    <TargetFramework>netstandard2.0</TargetFramework>
+
     <AssemblyTitle>ElasticSearchTelemetryConsumer</AssemblyTitle>
     <Company>OrleansContrib</Company>
     <Product>ElasticSearchTelemetryConsumer</Product>
@@ -16,7 +17,6 @@
     <PackageTags>Orleans, Elasticsearch, telemetry, metrics</PackageTags>
     <RootNamespace>Orleans.TelemetryConsumers.ElasticSearch</RootNamespace>
     <AssemblyName>Orleans.TelemetryConsumers.ElasticSearch</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Elasticsearch.Net" Version="2.5.8" />

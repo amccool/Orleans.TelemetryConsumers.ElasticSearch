@@ -1,50 +1,74 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Microsoft.Extensions.Logging;
+using Orleans.Configuration;
+using Orleans.Hosting;
+using System;
+using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using Orleans;
 
 namespace TestHost
 {
+
     class Program
     {
+
+        static readonly ManualResetEvent _siloStopped = new ManualResetEvent(false);
+
+        static ISiloHost silo;
+        static bool siloStopping = false;
+        static readonly object syncLock = new object();
+
         static void Main(string[] args)
         {
-            // The Orleans silo environment is initialized in its own app domain in order to more
-            // closely emulate the distributed situation, when the client and the server cannot
-            // pass data via shared memory.
-            AppDomain hostDomain = AppDomain.CreateDomain("OrleansHost", null, new AppDomainSetup
-            {
-                AppDomainInitializer = InitSilo,
-                AppDomainInitializerArguments = args,
-            });
 
+            SetupApplicationShutdown();
 
-            Console.WriteLine("Orleans Silo is running.\nPress Enter to terminate...");
-            Console.ReadLine();
+            silo = CreateSilo();
+            silo.StartAsync().Wait();
 
-            hostDomain.DoCallBack(ShutdownSilo);
+            // Wait for the silo to completely shutdown before exiting. 
+            _siloStopped.WaitOne();
         }
 
-        static void InitSilo(string[] args)
+        static void SetupApplicationShutdown()
         {
-            hostWrapper = new OrleansHostWrapper();
-
-            if (!hostWrapper.Run())
-            {
-                Console.Error.WriteLine("Failed to initialize Orleans silo");
-            }
+            // Capture the user pressing Ctrl+C
+            Console.CancelKeyPress += (s, a) => {
+                // Prevent the application from crashing ungracefully.
+                a.Cancel = true;
+                // Don't allow the following code to repeat if the user presses Ctrl+C repeatedly.
+                lock (syncLock)
+                {
+                    if (!siloStopping)
+                    {
+                        siloStopping = true;
+                        Task.Run(StopSilo).Ignore();
+                    }
+                }
+                // Event handler execution exits immediately, leaving the silo shutdown running on a background thread,
+                // but the app doesn't crash because a.Cancel has been set = true
+            };
         }
 
-        static void ShutdownSilo()
+        static ISiloHost CreateSilo()
         {
-            if (hostWrapper != null)
-            {
-                hostWrapper.Dispose();
-                GC.SuppressFinalize(hostWrapper);
-            }
+            return new SiloHostBuilder()
+                .UseLocalhostClustering()
+                //.ClusterOptions>(options => options.ClusterId = "MyTestCluster")
+                // Prevent the silo from automatically stopping itself when the cancel key is pressed.
+                .Configure<ProcessExitHandlingOptions>(options => options.FastKillOnProcessExit = false)
+                //.UseDevelopmentClustering(options => options.PrimarySiloEndpoint = new IPEndPoint(IPAddress.Loopback, 11111))
+                .ConfigureLogging(b => b.SetMinimumLevel(LogLevel.Debug).AddConsole())
+                .AddElasticsearchTelemetryConsumer(new Uri("http://smellycat01.devint.dev-r5ead.net:9200"), "alex-orleans")
+                .Build();
         }
 
-        private static OrleansHostWrapper hostWrapper;
+        static async Task StopSilo()
+        {
+            await silo.StopAsync();
+            _siloStopped.Set();
+        }
     }
 }

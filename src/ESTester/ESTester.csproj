@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net461</TargetFramework>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <AssemblyTitle>ESTester</AssemblyTitle>
     <Company></Company>
     <Product>ESTester</Product>
@@ -11,12 +12,13 @@
     <FileVersion>1.0.0.0</FileVersion>
     <RootNamespace>ESTester</RootNamespace>
     <AssemblyName>ESTester</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp />
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\ElasticSearchTelemetryConsumer\Orleans.TelemetryConsumers.ElasticSearch.csproj" />
+    <ProjectReference Include="..\TestGrainInterfaces\TestGrainInterfaces.csproj" />
+    <ProjectReference Include="..\TestGrains\TestGrains.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="elasticsearch-inside" Version="6.0.0" />
