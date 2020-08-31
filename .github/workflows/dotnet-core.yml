@@ -22,7 +22,7 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release --no-restore
     - name: Test
-      run: dotnet test --no-restore --verbosity normal
+      run: dotnet test --no-restore --verbosity normal --configuration Release
 #    - name: Create the package
 #      run: dotnet pack --configuration Release **/Orleans.TelemetryConsumers.ElasticSearch.csproj
     - name: upload nupkg artifacts
