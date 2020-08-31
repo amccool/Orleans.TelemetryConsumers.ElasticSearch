@@ -23,8 +23,8 @@ jobs:
       run: dotnet build --configuration Release --no-restore
     - name: Test
       run: dotnet test --no-restore --verbosity normal --configuration Release
-#    - name: Create the package
-#      run: dotnet pack --configuration Release **/Orleans.TelemetryConsumers.ElasticSearch.csproj
+    - name: Create the package
+      run: dotnet pack --configuration Release src/**/Orleans.TelemetryConsumers.ElasticSearch.csproj -p:Version="6.8.0.1"
     - name: upload nupkg artifacts
       uses: actions/upload-artifact@v2
       with:
