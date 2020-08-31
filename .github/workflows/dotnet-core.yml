@@ -24,4 +24,10 @@ jobs:
     - name: Test
       run: dotnet test --no-restore --verbosity normal
     - name: Create the package
-      run: dotnet pack --configuration Release
+      run: dotnet pack --configuration Release **/Orleans.TelemetryConsumers.ElasticSearch.csproj
+    - name: upload nupkg artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: nugets
+        path: **/*.nupkg
+
